@@ -63,21 +63,11 @@ class Drawable {
 	public var matrix(get,never):Matrix;
 	function get_matrix() {
 		var m = Matrix.get();
-		/*m.transform(transform);
+		m.transform(transform);
 		var p = parent;
 		while (p != null) {
 			m.transform(p.transform);
 			p = p.parent;
-		}*/
-		var stack = [this];
-		var p = parent;
-		while (p != null) {
-			stack.push(p);
-			p = p.parent;
-		}
-		while (stack.length > 0) {
-			var d = stack.shift();
-			m.transform(d.transform);
 		}
 		return m;
 	}

@@ -485,13 +485,12 @@ webworks_display_Drawable.prototype = {
 	}
 	,get_matrix: function() {
 		var m = webworks_math_Matrix.get();
-		var stack = [this];
+		m.transform(this.transform);
 		var p = this.parent;
 		while(p != null) {
-			stack.push(p);
+			m.transform(p.transform);
 			p = p.parent;
 		}
-		while(stack.length > 0) m.transform(stack.shift().transform);
 		return m;
 	}
 	,pre_update: function(e) {
