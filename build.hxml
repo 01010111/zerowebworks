@@ -1,0 +1,7 @@
+-lib uglifyjs
+-cp src
+-cp zero
+-D analyzer-optimize
+--dce full
+-main Main
+--js bin/app.js
