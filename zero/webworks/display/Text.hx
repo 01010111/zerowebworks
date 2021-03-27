@@ -29,8 +29,7 @@ class Text extends Drawable {
 		return this;
 	}
 
-	override function _draw(ctx:CanvasRenderingContext2D) {
-		apply_transform_to_ctx(ctx);
+	override function draw(ctx:CanvasRenderingContext2D) {
 		if (format != null) {
 			if (text.length == 0) return;
 			var font_prefix = switch format.style {
@@ -52,7 +51,6 @@ class Text extends Drawable {
 				ctx.strokeText(text, 0, 0, format.max_width);
 			}
 		}
-		draw_children(ctx);
 	}
 
 }

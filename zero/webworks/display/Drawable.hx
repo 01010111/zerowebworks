@@ -13,6 +13,7 @@ using webworks.util.ContextTools;
 class Drawable {
 
 	static var ctx_matrix = Matrix.get();
+	static var last_alpha:Float;
 	
 	public var transform = Transform.get();
 	public var alpha:Float = 1;
@@ -64,11 +65,14 @@ class Drawable {
 	function get_matrix() {
 		var m = Matrix.get();
 		m.transform(transform);
+		m.translate(width * pivot.x, height * pivot.y);
 		var p = parent;
 		while (p != null) {
 			m.transform(p.transform);
+			//m.translate(p.width * p.pivot.x, p.height * p.pivot.y);
 			p = p.parent;
 		}
+		m.translate(-width * pivot.x, -height * pivot.y);
 		return m;
 	}
 
@@ -78,28 +82,41 @@ class Drawable {
 
 	static var stack:Array<Drawable>;
 
-	function draw(ctx:CanvasRenderingContext2D) {
+	function ctx_draw(ctx:CanvasRenderingContext2D) {
 		ctx.save();
-		ctx.globalAlpha = alpha;
-		_draw(ctx);
+		pre_draw(ctx);
+		draw(ctx);
+		post_draw(ctx);
 		ctx.restore();
 	}
-	
-	function _draw(ctx:CanvasRenderingContext2D) {
+
+	function pre_draw(ctx:CanvasRenderingContext2D) {		
+		last_alpha = ctx.globalAlpha;
+		ctx.globalAlpha = alpha;
 		apply_transform_to_ctx(ctx);
-		draw_children(ctx);
+	}
+	
+	function draw(ctx:CanvasRenderingContext2D) {}
+	
+	function post_draw(ctx:CanvasRenderingContext2D) {
+		ctx.globalAlpha = last_alpha;
+		draw_children(ctx);		
 	}
 
 	function draw_children(ctx:CanvasRenderingContext2D) {
 		ctx.translate(width * pivot.x, height * pivot.y);
-		for (child in children) child._draw(ctx);
+		for (child in children) {
+			child.pre_draw(ctx);
+			child.draw(ctx);
+			child.post_draw(ctx);
+		}
 	}
 
 	function apply_transform_to_ctx(ctx:CanvasRenderingContext2D) {
 		ctx.translate(transform.position.x, transform.position.y);
 		ctx.rotate(transform.rotation);
-		ctx.translate(-width * pivot.x * scale.x, -height * pivot.y * scale.y);
 		ctx.scale(scale.x, scale.y);
+		ctx.translate(-width * pivot.x, -height * pivot.y);
 	}
 
 	public function add(child:Drawable, ?at:Int) {

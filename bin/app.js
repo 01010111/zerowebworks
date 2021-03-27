@@ -43,6 +43,7 @@ Main.prototype = $extend(webworks_core_Scene.prototype,{
 			console.log("src/Main.hx:23:",e);
 		};
 		this.parent.get_position().set(webworks_core_Game.width / 2,webworks_core_Game.height / 2);
+		this.parent.alpha = 0.5;
 		this.parent.get_scale().set(0.25,0.25);
 		this.child.get_scale().set(0.5,0.5);
 		this.parent.add(this.child);
@@ -486,11 +487,13 @@ webworks_display_Drawable.prototype = {
 	,get_matrix: function() {
 		var m = webworks_math_Matrix.get();
 		m.transform(this.transform);
+		m.translate(this.width * this.pivot.x,this.height * this.pivot.y);
 		var p = this.parent;
 		while(p != null) {
 			m.transform(p.transform);
 			p = p.parent;
 		}
+		m.translate(-this.width * this.pivot.x,-this.height * this.pivot.y);
 		return m;
 	}
 	,pre_update: function(e) {
@@ -498,27 +501,41 @@ webworks_display_Drawable.prototype = {
 			webworks_util_Interactions.add(this);
 		}
 	}
-	,draw: function(ctx) {
+	,ctx_draw: function(ctx) {
 		ctx.save();
-		ctx.globalAlpha = this.alpha;
-		this._draw(ctx);
+		this.pre_draw(ctx);
+		this.draw(ctx);
+		this.post_draw(ctx);
 		ctx.restore();
 	}
-	,_draw: function(ctx) {
+	,pre_draw: function(ctx) {
+		webworks_display_Drawable.last_alpha = ctx.globalAlpha;
+		ctx.globalAlpha = this.alpha;
 		this.apply_transform_to_ctx(ctx);
+	}
+	,draw: function(ctx) {
+	}
+	,post_draw: function(ctx) {
+		ctx.globalAlpha = webworks_display_Drawable.last_alpha;
 		this.draw_children(ctx);
 	}
 	,draw_children: function(ctx) {
 		ctx.translate(this.width * this.pivot.x,this.height * this.pivot.y);
 		var _g = 0;
 		var _g1 = this.children;
-		while(_g < _g1.length) _g1[_g++]._draw(ctx);
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			child.pre_draw(ctx);
+			child.draw(ctx);
+			child.post_draw(ctx);
+		}
 	}
 	,apply_transform_to_ctx: function(ctx) {
 		ctx.translate(this.transform.position.x,this.transform.position.y);
 		ctx.rotate(this.transform.rotation);
-		ctx.translate(-this.width * this.pivot.x * this.get_scale().x,-this.height * this.pivot.y * this.get_scale().y);
 		ctx.scale(this.get_scale().x,this.get_scale().y);
+		ctx.translate(-this.width * this.pivot.x,-this.height * this.pivot.y);
 	}
 	,add: function(child,at) {
 		if(child.parent != null) {
@@ -576,12 +593,10 @@ webworks_display_Sprite.prototype = $extend(webworks_display_Drawable.prototype,
 		}
 		return this;
 	}
-	,_draw: function(ctx) {
-		this.apply_transform_to_ctx(ctx);
+	,draw: function(ctx) {
 		if(this.image != null) {
 			ctx.drawImage(this.image,this.frame.x,this.frame.y,this.frame.width,this.frame.height,0,0,this.frame.width,this.frame.height);
 		}
-		this.draw_children(ctx);
 	}
 });
 var webworks_display_Transform = function() {
@@ -939,7 +954,7 @@ webworks_util_ContextTools.line_style = function(ctx,col,lw,alpha) {
 	return ctx;
 };
 webworks_util_ContextTools.sprite = function(ctx,sprite) {
-	sprite.draw(ctx);
+	sprite.ctx_draw(ctx);
 };
 var webworks_util_Interactions = function() { };
 webworks_util_Interactions.empty = function() {

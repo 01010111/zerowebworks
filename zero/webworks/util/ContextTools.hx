@@ -167,19 +167,19 @@ class ContextTools {
 		return ctx;
 	}
 
-	@:access(webworks.display.Drawable.draw)
+	@:access(webworks.display.Drawable.ctx_draw)
 	public static function graphic(ctx:CanvasRenderingContext2D, graphic:Drawable) {
-		graphic.draw(ctx);
+		graphic.ctx_draw(ctx);
 	}
 
-	@:access(webworks.display.Sprite.draw)
+	@:access(webworks.display.Sprite.ctx_draw)
 	public static function sprite(ctx:CanvasRenderingContext2D, sprite:Sprite) {
-		sprite.draw(ctx);
+		sprite.ctx_draw(ctx);
 	}
 
-	@:access(webworks.display.Text.draw)
+	@:access(webworks.display.Text.ctx_draw)
 	public static function text(ctx:CanvasRenderingContext2D, text:Text) {
-		text.draw(ctx);
+		text.ctx_draw(ctx);
 	}
 
 }

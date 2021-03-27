@@ -24,6 +24,7 @@ class Main extends Scene {
 
 		parent.position.set(Game.width/2, Game.height/2);
 		//child.position.set(200, 0);
+		parent.alpha = 0.5;
 		parent.scale.set(0.25, 0.25);
 		child.scale.set(0.5, 0.5);
 

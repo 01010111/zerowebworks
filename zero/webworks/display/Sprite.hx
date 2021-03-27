@@ -35,8 +35,7 @@ class Sprite extends Drawable {
 		return this;
 	}
 
-	override function _draw(ctx:CanvasRenderingContext2D) {
-		apply_transform_to_ctx(ctx);
+	override function draw(ctx:CanvasRenderingContext2D) {
 		if (image != null) ctx.drawImage(
 			image,
 			frame.x,
@@ -48,7 +47,6 @@ class Sprite extends Drawable {
 			frame.width,
 			frame.height
 		);
-		draw_children(ctx);
 	}
 
 }
